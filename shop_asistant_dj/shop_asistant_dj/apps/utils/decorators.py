@@ -5,11 +5,9 @@ import purchase.models
 def set_indexes(function):
     def wrapper(self, *args, **kwargs):
         function(self, *args, **kwargs)
-        items = self.get_items()
-        i = 1
-        for item in items:
-            if item.ind != i:
-                item.ind = i
-                item.save()
-            i += 1
+        id_and_ind = self.items.values_list('id', 'ind')
+        print(id_and_ind)
+        for i in range(len(id_and_ind)):
+            if id_and_ind[i][1] != i + 1:
+                self.items.filter(id=id_and_ind[i][0]).update(ind=i+1)
     return wrapper
