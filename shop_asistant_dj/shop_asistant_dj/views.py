@@ -5,7 +5,6 @@ from api.models import TelegramSession
 
 def index(request):
     u = CustomUser.objects.get(telegram_id='123456')
-    s =''
-    for item in TelegramSession._meta.fields:
-        s += item + '\n'
-    return HttpResponse(s)
+    itms = [item.title for item in u.items.all()]
+
+    return HttpResponse(itms)

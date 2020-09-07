@@ -7,6 +7,9 @@ class ItemOwnerMixin:
     def get_items(self):
         return self.items.all()
 
+    @property
+    def items_count(self):
+        return self.items.count()
 
     def add_items(self, items_titles_list:list):
         current_list_items_titles = [item.title.upper() for item in self.get_items()]
@@ -16,7 +19,6 @@ class ItemOwnerMixin:
             for item_title in items_to_add:
                 new_items_count += 1
                 self.items.create(ind=new_items_count, title=item_title.capitalize())
-            self.items_count = new_items_count
             self.last_change = timezone.now()
             self.save()
             print('Items {} has been successfully added to {}'.format(', '.join(items_to_add), self))
@@ -29,7 +31,6 @@ class ItemOwnerMixin:
         items_to_remove = sorted(set([int(ind) for ind in items_indexes_list if 0<int(ind)<=self.items_count]))
         for item_index in items_to_remove:
             self.items.get(ind=item_index).delete()
-        self.items_count -= len(items_to_remove)
         self.last_change = timezone.now()
         self.save()
         print('{} item(s) has been removed'.format(str(len(items_to_remove))))

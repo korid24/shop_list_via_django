@@ -10,7 +10,6 @@ class PurchasesList(ItemOwnerMixin, models.Model):
     title = models.CharField('List title', max_length=20)
     creation_time = models.DateTimeField('Creation time', default=timezone.now)
     last_change = models.DateTimeField('Last change', default=timezone.now)
-    items_count = models.IntegerField('List lenght', default=0)
 
     class Meta:
         ordering = ('ind', 'creation_time')

@@ -17,7 +17,6 @@ class CustomUser(ItemOwnerMixin, AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField('First name', max_length=15, default='unknown')
     last_name = models.CharField('Second name', max_length=15, default='unknown')
     nickname = models.CharField('Nickname', max_length=15, default='unknown')
-    items_count = models.IntegerField('Lists count', default=0)
 
     USERNAME_FIELD = 'telegram_id'
     REQUIRED_FIELDS = []
