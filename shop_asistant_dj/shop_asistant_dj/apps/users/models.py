@@ -9,6 +9,7 @@ from utils.mixins import ItemOwnerMixin
 
 
 class CustomUser(ItemOwnerMixin, AbstractBaseUser, PermissionsMixin):
+    '''Кастомная модель пользователя, уникальное значени telegram id вместо username'''
     telegram_id = models.CharField('Telegram id', max_length=15, unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -24,6 +25,7 @@ class CustomUser(ItemOwnerMixin, AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def set_personal_information(self, first_name=None, last_name=None, nickname=None):
+        '''Присваевает юзеру персональную информацию'''
         self.first_name = first_name or 'unknown'
         self.last_name = last_name or 'unknown'
         self.nickname = nickname or 'unknown'

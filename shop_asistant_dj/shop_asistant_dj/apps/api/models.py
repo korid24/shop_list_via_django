@@ -5,6 +5,7 @@ from .serializers import UserBotApiSerializer, PurchasesListBotApiSerializer
 
 
 class TelegramSession(models.Model):
+    '''Модель текущей сесси пользователя'''
     # Связь сессии и пользователя - одна сессия - один пользователь
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='telegram_session')
     # Текущая позиция сессииб 0 - старт

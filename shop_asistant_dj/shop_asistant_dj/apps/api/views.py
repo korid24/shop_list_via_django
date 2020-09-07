@@ -1,8 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-
-
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,14 +12,7 @@ from .serializers import (
     PurchasesListSerializer,
     PurchaseSerializer,
     UserDetailSerializer,
-    # UserForBotSerializer,
-    #TelegramSessionSerializer,
     )
-# Create your views here.
-
-def index(request):
-    return HttpResponse('ready')
-
 
 class PurchasesListsView(APIView):
     def get(self, request):

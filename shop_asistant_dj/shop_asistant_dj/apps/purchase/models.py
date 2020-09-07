@@ -5,6 +5,7 @@ from utils.mixins import ItemOwnerMixin
 
 
 class PurchasesList(ItemOwnerMixin, models.Model):
+    '''Модель списка покупок'''
     author = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='items')
     ind = models.IntegerField('List index', default=1000)
     title = models.CharField('List title', max_length=20)
@@ -20,6 +21,7 @@ class PurchasesList(ItemOwnerMixin, models.Model):
 
 
 class Purchase(models.Model):
+    '''Модель покупки'''
     purchase_list = models.ForeignKey(PurchasesList, on_delete=models.CASCADE, related_name='items')
     ind = models.IntegerField('Purchase index', default=1000)
     title = models.CharField('Purchase title', max_length=20)

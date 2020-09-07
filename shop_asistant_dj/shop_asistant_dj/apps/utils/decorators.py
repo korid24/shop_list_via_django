@@ -3,6 +3,7 @@ import purchase.models
 
 
 def set_indexes(function):
+    '''Декорирует функцию, присваивает элементам верные индексы после её выполнения'''
     def wrapper(self, *args, **kwargs):
         function(self, *args, **kwargs)
         id_and_ind = self.items.values_list('id', 'ind')
