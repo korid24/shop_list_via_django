@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 
+
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager where telegram_id is the unique identifiers
@@ -15,6 +16,7 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save()
         return user
+
     def create_superuser(self, telegram_id, password, **extra_fields):
         """
         Create and save a SuperUser with the given telegram_id and password.

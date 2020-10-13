@@ -1,6 +1,4 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
-from django.http import HttpResponse, Http404, HttpResponseRedirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,11 +12,13 @@ from .serializers import (
     UserDetailSerializer,
     )
 
+
 class PurchasesListsView(APIView):
     def get(self, request):
         pls = PurchasesList.objects.all()
         serializer = PurchasesListSerializer(pls, many=True)
         return Response(serializer.data)
+
 
 class PurchasesView(APIView):
     '''Представление покупок'''
@@ -27,7 +27,7 @@ class PurchasesView(APIView):
         serializer = PurchaseSerializer(purs, many=True)
         return Response(serializer.data)
 
-    def post(self,request):
+    def post(self, request):
         print(request.user)
         print(request.data.get('message'))
         print(request.data)
@@ -39,12 +39,12 @@ class PurchasesView(APIView):
 
 class UserDetailView(APIView):
     '''Детальная информация о пользователе'''
-    def get(self,request):
+    def get(self, request):
         try:
             serializer = UserDetailSerializer(request.user)
             return Response(serializer.data)
         except ObjectDoesNotExist:
-            return Response({'detail':'does not exist'})
+            return Response({'detail': 'does not exist'})
 
 
 class TelegramSessionView(APIView):
@@ -56,13 +56,13 @@ class TelegramSessionView(APIView):
                 telegram_id=user_telegram_id,
             )
 
-            current_session, is_new_session = TelegramSession.objects.get_or_create(
-                user=current_user,
-            )
+            current_session, is_new_session = (TelegramSession.objects.
+                                               get_or_create(
+                                                user=current_user))
             serializer = current_session.action(**request.data)
             return Response(serializer.data)
         else:
             return Response({
-                'Error' : True,
-                'details' : 'Для доступа к информации недостаточно прав'
+                'Error': True,
+                'details': 'Для доступа к информации недостаточно прав'
                 })

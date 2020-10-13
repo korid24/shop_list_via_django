@@ -7,15 +7,15 @@ from .serializers import UserBotApiSerializer, PurchasesListBotApiSerializer
 class TelegramSession(models.Model):
     '''Модель текущей сесси пользователя'''
     # Связь сессии и пользователя - одна сессия - один пользователь
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='telegram_session')
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name='telegram_session')
     # Текущая позиция сессииб 0 - старт
     position = models.IntegerField('Position', default=0)
     last_activity = models.DateTimeField('Last activity', default=timezone.now)
 
-
     def __str__(self):
-        return 'Telegram session of {} now in list {}'.format(self.user,self.position)
-
+        return ('Telegram session of {} now in list {}'
+                .format(self.user, self.position))
 
     def action_field(self):
         '''Возвращает объект, над которым будут проводиться действия'''
@@ -23,7 +23,6 @@ class TelegramSession(models.Model):
             return self.user.items.get(ind=self.position)
         else:
             return self.user
-
 
     def move(self, way):
         '''Меняет позицию сессии'''
@@ -33,7 +32,6 @@ class TelegramSession(models.Model):
             self.position = 0
             print('Списка под номером {} не существует'.format(str(way)))
         self.save()
-
 
     def action(self, operation='move', data=[0], *args, **kwargs):
         '''Выполняет действие в сесси по запросу'''

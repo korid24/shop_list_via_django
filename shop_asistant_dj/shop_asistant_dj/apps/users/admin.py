@@ -17,7 +17,8 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('telegram_id', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('telegram_id', 'password1',
+                       'password2', 'is_staff', 'is_active')}
          ),
     )
     search_fields = ('telegram_id',)
