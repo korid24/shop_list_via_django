@@ -1,68 +1,126 @@
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .secret import API_TOKEN_FOR_BOT
-from purchase.models import Purchase, PurchasesList
+# from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
+# from rest_framework.response import Response
+# from rest_framework.decorators import action
+# from rest_framework.exceptions import ValidationError
+# from rest_framework.views import APIView
+# from rest_framework.permissions import IsAuthenticated
+# from purchase.models import Purchase, PurchasesList
 from users.models import CustomUser
-from .models import TelegramSession
+# from .models import TelegramSession
+from .utils.mixins import CustomViewSetMixin
+from .utils.permissions import BotPermission
 from .serializers import (
     PurchasesListSerializer,
     PurchaseSerializer,
-    UserDetailSerializer,
-    )
+    UserSummarySerializer,
+    UserDetailSerializer)
 
 
-class PurchasesListsView(APIView):
-    def get(self, request):
-        pls = PurchasesList.objects.all()
-        serializer = PurchasesListSerializer(pls, many=True)
-        return Response(serializer.data)
+class PurchasesListsViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
+    """
+    Представление списков покупок
+    """
+    serializer_class = PurchasesListSerializer
+
+    def get_queryset(self):
+        """
+        queryset - все списки покупок пользователя
+        """
+        return self.get_user().items.all()
+
+    def perform_create(self, serializer):
+        """
+        Пользователь становится автором нового списка
+        """
+        serializer.save(author=self.get_user().user)
 
 
-class PurchasesView(APIView):
-    '''Представление покупок'''
-    def get(self, request):
-        purs = Purchase.objects.all()
-        serializer = PurchaseSerializer(purs, many=True)
-        return Response(serializer.data)
+class PurchaseViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
+    """
+    Представление покупок
+    """
+    serializer_class = PurchaseSerializer
 
-    def post(self, request):
-        print(request.user)
-        print(request.data.get('message'))
-        print(request.data)
+    def get_purchase_list(self):
+        """
+        Получает текущий список
+        """
+        purchase_list_ind = self.kwargs.get('purchase_list_pk')
+        return get_object_or_404(
+            self.get_user().items.all(), ind=purchase_list_ind)
 
-        purs = Purchase.objects.all()
-        serializer = PurchaseSerializer(purs, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        """
+        queryset - все покупки из текущего списка
+        """
+        return self.get_purchase_list().items.all()
+
+    def perform_create(self, serializer):
+        """
+        Создаваемая покупка попадает в текущий список
+        """
+        serializer.save(purchase_list=self.get_purchase_list())
 
 
-class UserDetailView(APIView):
-    '''Детальная информация о пользователе'''
-    def get(self, request):
-        try:
-            serializer = UserDetailSerializer(request.user)
-            return Response(serializer.data)
-        except ObjectDoesNotExist:
-            return Response({'detail': 'does not exist'})
+class BotUserViewSet(viewsets.ModelViewSet):
+    """
+    Представление пользователей для бота
+    """
+    queryset = CustomUser.objects.all()
+    permission_classes = (BotPermission, )
+    http_method_names = ('get', 'put', 'patch', 'head', 'options')
+
+    def get_serializer_class(self):
+        """
+        При вызове списка пользователей выводятся только названия списков
+        покупок, в остальных случаях - полная информация
+        """
+        if self.request.method == 'GET' and self.kwargs.get('pk'):
+            return UserDetailSerializer
+        return UserSummarySerializer
+
+    def get_object(self):
+        """
+        Получение пользователя через telegram_id в URL
+        """
+        telegram_id = self.kwargs.get('pk')
+        return get_object_or_404(self.queryset, telegram_id=telegram_id)
 
 
-class TelegramSessionView(APIView):
-    '''Информация, передаваемая боту'''
-    def post(self, request):
-        if request.data.get('api_token') == API_TOKEN_FOR_BOT:
-            user_telegram_id = str(request.data.get('telegram_id'))
-            current_user, is_new_user = CustomUser.objects.get_or_create(
-                telegram_id=user_telegram_id,
-            )
-
-            current_session, is_new_session = (TelegramSession.objects.
-                                               get_or_create(
-                                                user=current_user))
-            serializer = current_session.action(**request.data)
-            return Response(serializer.data)
-        else:
-            return Response({
-                'Error': True,
-                'details': 'Для доступа к информации недостаточно прав'
-                })
+# class BotPurchaseListViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
+#     serializer_class = PurchasesListSerializer
+#     permission_classes = (BotPermission, )
+#
+#     def get_user(self):
+#         user_telegram_id = self.kwargs.get('user_telegram_id_pk')
+#         return get_object_or_404(
+#             CustomUser.objects.all(), telegram_id=user_telegram_id)
+#
+#     def get_queryset(self):
+#         return self.get_user().items.all()
+#
+#     def perform_create(self, serializer):
+#         serializer.save(author=self.get_user())
+#
+#
+# class BotPurchaseViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
+#     serializer_class = PurchaseSerializer
+#     permission_classes = (BotPermission, )
+#
+#     def get_user(self):
+#         user_telegram_id = self.kwargs.get('user_telegram_id_pk')
+#         return get_object_or_404(
+#             CustomUser.objects.all(), telegram_id=user_telegram_id)
+#
+#     def get_purchase_list(self):
+#         purchase_list_ind = self.kwargs.get('purchase_list_pk')
+#         return get_object_or_404(
+#             self.get_user().items.all(), ind=purchase_list_ind)
+#
+#     def get_queryset(self):
+#         return self.get_purchase_list().items.all()
+#
+#     def perform_create(self, serializer):
+#         serializer.save(purchase_list=self.get_purchase_list())

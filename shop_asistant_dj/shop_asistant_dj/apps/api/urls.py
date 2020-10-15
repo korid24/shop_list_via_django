@@ -1,12 +1,48 @@
-from django.urls import path
+# from django.urls import path
+# from rest_framework.routers import SimpleRouter
+from rest_framework_nested import routers
 from . import views
 
 
 app_name = 'api'
 
-urlpatterns = [
-    # path('pls/', views.PurchasesListsView.as_view()),
-    # path('purs/', views.PurchasesView.as_view()),
-    # path('user/', views.UserDetailView.as_view()),
-    path('telegram_session/', views.TelegramSessionView.as_view()),
-]
+urlpatterns = []
+
+# Начальные роутеры (пользователи для бота и списки покупок для обыного
+# пользователя)
+router = routers.SimpleRouter()
+router.register(
+    'purchaselist',
+    views.PurchasesListsViewSet,
+    basename='purchaselist')
+router.register(
+    'bot_user',
+    views.BotUserViewSet,
+    basename='bot_user'
+)
+
+# Вложенные роутеры
+purchase_router = routers.NestedSimpleRouter(
+    router, 'purchaselist', lookup='purchase_list')
+purchase_router.register(
+    'purchase',
+    views.PurchaseViewSet,
+    basename='purchase')
+
+bot_purchase_list_router = routers.NestedSimpleRouter(
+    router, 'bot_user', lookup='user_telegram_id')
+bot_purchase_list_router.register(
+    'bot_purchase_list',
+    views.PurchasesListsViewSet,
+    basename='bot_purchase_list')
+
+bot_purchase_router = routers.NestedSimpleRouter(
+    bot_purchase_list_router, 'bot_purchase_list', lookup='purchase_list')
+bot_purchase_router.register(
+    'bot_purchase',
+    views.PurchaseViewSet,
+    basename='bot_purchase')
+
+# добавление всех роутеров к URLам
+urlpatterns += (router.urls + purchase_router.urls +
+                bot_purchase_list_router.urls + bot_purchase_router.urls)

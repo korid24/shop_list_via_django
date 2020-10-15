@@ -11,7 +11,6 @@ class CustomUserManager(BaseUserManager):
         """
         Create and save a User with the given telegram_id and password.
         """
-        # telegram_id = self.telegram_id
         user = self.model(telegram_id=telegram_id, **extra_fields)
         user.set_password(password)
         user.save()

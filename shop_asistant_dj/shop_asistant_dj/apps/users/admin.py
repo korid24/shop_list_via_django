@@ -8,11 +8,15 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = CustomUser
-    list_display = ('telegram_id', 'is_staff', 'is_active',)
-    list_filter = ('telegram_id', 'is_staff', 'is_active',)
+    list_display = (
+        'telegram_id', 'first_name', 'last_name',
+        'is_active', 'is_staff', 'is_superuser', 'is_bot')
+    list_filter = ('is_staff', 'is_active', 'is_superuser')
     fieldsets = (
-        (None, {'fields': ('telegram_id', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active')}),
+        (None, {'fields': (
+            'telegram_id', 'password', 'first_name', 'last_name')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser',
+                                    'is_bot', 'groups')}),
     )
     add_fieldsets = (
         (None, {
