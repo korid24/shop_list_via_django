@@ -1,7 +1,8 @@
 # from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-# from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.response import Response
 # from rest_framework.decorators import action
 # from rest_framework.exceptions import ValidationError
 # from rest_framework.views import APIView
@@ -15,7 +16,8 @@ from .serializers import (
     PurchasesListSerializer,
     PurchaseSerializer,
     UserSummarySerializer,
-    UserDetailSerializer)
+    UserDetailSerializer,
+    PasswordSetSerializer)
 
 
 class PurchasesListsViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
@@ -70,7 +72,7 @@ class BotUserViewSet(viewsets.ModelViewSet):
     """
     queryset = CustomUser.objects.all()
     permission_classes = (BotPermission, )
-    http_method_names = ('get', 'put', 'patch', 'head', 'options')
+    http_method_names = ('get', 'post', 'put', 'patch', 'head', 'options')
 
     def get_serializer_class(self):
         """
@@ -79,6 +81,8 @@ class BotUserViewSet(viewsets.ModelViewSet):
         """
         if self.request.method == 'GET' and self.kwargs.get('pk'):
             return UserDetailSerializer
+        elif self.request.method == 'POST' and self.kwargs.get('pk'):
+            return PasswordSetSerializer
         return UserSummarySerializer
 
     def get_object(self):
@@ -87,6 +91,15 @@ class BotUserViewSet(viewsets.ModelViewSet):
         """
         telegram_id = self.kwargs.get('pk')
         return get_object_or_404(self.queryset, telegram_id=telegram_id)
+
+    @action(detail=True, methods=['post'])
+    def set_password(self, request, *args, **kwargs):
+        current_user = self.get_object()
+        serializer = self.get_serializer_class()(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        current_user.set_password(serializer.validated_data['password'])
+        current_user.save()
+        return Response(status=204)
 
 
 # class BotPurchaseListViewSet(CustomViewSetMixin, viewsets.ModelViewSet):

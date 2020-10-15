@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from purchase.models import PurchasesList, Purchase
 from users.models import CustomUser
@@ -44,7 +45,6 @@ class UserSummarySerializer(serializers.ModelSerializer):
     Сериализатор пользователя, в котором выводятся только названия списков
     покупок
     """
-    telegram_id = serializers.IntegerField(read_only=True)
     last_activity = serializers.DateTimeField(
         source='last_change', read_only=True, format='%d.%m.%Y %X')
     date_joining = serializers.DateTimeField(
@@ -56,6 +56,12 @@ class UserSummarySerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('telegram_id', 'first_name', 'last_name', 'nickname',
                   'items', 'date_joining', 'last_activity')
+
+    def validate_telegram_id(self, value):
+        if self.instance:
+            if self.instance.telegram_id != value:
+                raise ValidationError('telegram_id cannot be changed')
+        return value
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -76,58 +82,5 @@ class UserDetailSerializer(serializers.ModelSerializer):
                   'items', 'date_joining', 'last_activity')
 
 
-# class UserDetailSerializer(serializers.ModelSerializer):
-#     '''Детальная информация о пользователе'''
-#     items = PurchasesListSerializer(many=True)
-#     last_login = serializers.DateTimeField(
-#         read_only=True, format='%d.%m.%Y %X')
-#     date_joining = serializers.DateTimeField(
-#         read_only=True, format='%d.%m.%Y %X')
-#     position_in_telegram_session = serializers.IntegerField(
-#         source='telegram_session.position', read_only=True)
-#
-#     class Meta:
-#         model = CustomUser
-#         fields = (
-#             'telegram_id',
-#             'first_name',
-#             'last_name',
-#             'nickname',
-#             'last_login',
-#             'date_joining',
-#             'position_in_telegram_session',
-#             'items'
-#             )
-#
-#
-# class UserBotApiSerializer(serializers.ModelSerializer):
-#     '''Информация о пользователе, передаваемая боту'''
-#     items = serializers.SlugRelatedField(
-#         slug_field='title', read_only=True, many=True)
-#     position = serializers.IntegerField(
-#         source='telegram_session.position', read_only=True)
-#
-#     class Meta:
-#         model = CustomUser
-#         fields = (
-#             'telegram_id', 'first_name', 'position', 'items_count', 'items')
-#
-#
-# class PurchasesListBotApiSerializer(serializers.ModelSerializer):
-#     '''Информация о списке покупок, передаваемая боту'''
-#     telegram_id = serializers.CharField(
-#         source='author.telegram_id', read_only=True)
-#     items = serializers.SlugRelatedField(
-#         slug_field='title', read_only=True, many=True)
-#     position = serializers.IntegerField(
-#         source='author.telegram_session.position', read_only=True)
-#
-#     class Meta:
-#         model = PurchasesList
-#         fields = (
-#             'telegram_id',
-#             'title',
-#             'position',
-#             'items_count',
-#             'items',
-#             )
+class PasswordSetSerializer(serializers.Serializer):
+    password = serializers.CharField(style={'input-type': 'password'})
