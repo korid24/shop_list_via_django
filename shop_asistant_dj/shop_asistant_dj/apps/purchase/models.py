@@ -20,7 +20,7 @@ class PurchasesList(models.Model):
         return ('List \'{}\' by {}'
                 .format(
                     self.title,
-                    self.author.telegram_id))
+                    self.author))
 
     def save(self, *args, **kwargs):
         """

@@ -3,13 +3,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-# from rest_framework.decorators import action
 # from rest_framework.exceptions import ValidationError
 # from rest_framework.views import APIView
 # from rest_framework.permissions import IsAuthenticated
 # from purchase.models import Purchase, PurchasesList
 from users.models import CustomUser
-# from .models import TelegramSession
 from .utils.mixins import CustomViewSetMixin
 from .utils.permissions import BotPermission
 from .serializers import (
@@ -36,7 +34,7 @@ class PurchasesListsViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
         """
         Пользователь становится автором нового списка
         """
-        serializer.save(author=self.get_user().user)
+        serializer.save(author=self.get_user())
 
 
 class PurchaseViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
@@ -70,7 +68,7 @@ class BotUserViewSet(viewsets.ModelViewSet):
     """
     Представление пользователей для бота
     """
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.exclude(is_bot=True)
     permission_classes = (BotPermission, )
     http_method_names = ('get', 'post', 'put', 'patch', 'head', 'options')
 
@@ -94,6 +92,9 @@ class BotUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def set_password(self, request, *args, **kwargs):
+        """
+        Назначение пользователю пароля через бота
+        """
         current_user = self.get_object()
         serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)

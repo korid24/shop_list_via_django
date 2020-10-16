@@ -83,4 +83,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class PasswordSetSerializer(serializers.Serializer):
+    """
+    Сериализатор для назначения пароля через бота
+    """
     password = serializers.CharField(style={'input-type': 'password'})

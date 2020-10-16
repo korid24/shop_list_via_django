@@ -3,4 +3,6 @@ from rest_framework.permissions import BasePermission
 
 class BotPermission(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_bot)
+        return bool(request.user and
+                    request.user.is_authenticated and
+                    request.user.is_bot)

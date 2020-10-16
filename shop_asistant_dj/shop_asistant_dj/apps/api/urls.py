@@ -32,12 +32,12 @@ purchase_router.register(
 bot_purchase_list_router = routers.NestedSimpleRouter(
     router, 'bot_user', lookup='user_telegram_id')
 bot_purchase_list_router.register(
-    'bot_purchase_list',
+    'bot_purchaselist',
     views.PurchasesListsViewSet,
-    basename='bot_purchase_list')
+    basename='bot_purchaselist')
 
 bot_purchase_router = routers.NestedSimpleRouter(
-    bot_purchase_list_router, 'bot_purchase_list', lookup='purchase_list')
+    bot_purchase_list_router, 'bot_purchaselist', lookup='purchase_list')
 bot_purchase_router.register(
     'bot_purchase',
     views.PurchaseViewSet,

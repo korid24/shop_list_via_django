@@ -1,55 +1,10 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
-from .permissions import BotPermission
-
-
-class CustomUpdateMixin:
-    """
-    Миксин для переопределения метода update, при котором будут
-    проставлятьстя индесы
-    """
-
-    def get_instance_parrent(self):
-        """
-        Абстрактный метод для получения владельца элемента
-        """
-        raise NotImplementedError(
-            'You need to override the method \'get_instance_parrent\' in {}'
-            .format(self.__class__.__name__))
-
-    def validate_ind(self, value):
-        items_count = self.get_instance_parrent().items.count()
-        if value is not None:
-            if value > items_count:
-                return items_count
-            elif value < 1:
-                return 1
-        else:
-            return value
-
-    def update(self, instance, validated_data):
-        """
-        Проставление корректных индексов при изменении порядка элементов
-        """
-        if validated_data.get('ind', instance.ind) != instance.ind:
-            elements_sequence = list(
-                self.get_instance_parrent().items.values_list('id', 'ind'))
-            replaced_element = elements_sequence.pop(instance.ind - 1)
-            elements_sequence.insert(
-                validated_data['ind'] - 1, replaced_element)
-            numbers_sequence = list(range(1, len(elements_sequence) + 1))
-            for i in range(len(numbers_sequence)):
-                element_id, element_ind = elements_sequence[i]
-                if numbers_sequence[i] != element_ind:
-                    (self.get_instance_parrent().items
-                     .filter(id=element_id).update(ind=numbers_sequence[i]))
-        return serializers.ModelSerializer.update(
-            self, instance, validated_data)
+from api.utils.permissions import BotPermission
 
 
 class CustomViewSetMixin:
@@ -107,14 +62,14 @@ class CustomViewSetMixin:
         try:
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
         except ValidationError:
             return Response({
                 'Error': 'A list with values was expected'},
                 status=400)
 
     @action(detail=False, methods=['delete'])
-    def bulk_destroy(self, request, *args, **kwargs):
+    def bulk_delete(self, request, *args, **kwargs):
         """
         Дает возможность удалять несколько элементов за раз.
         Выставляет правильные индексы после удаления
