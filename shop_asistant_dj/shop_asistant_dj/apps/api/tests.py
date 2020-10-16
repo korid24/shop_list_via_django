@@ -23,7 +23,7 @@ class LoginTest(TestCase):
                         response.data.get('auth_token'))
 
 
-class CommonUserViewTest(BaseViewTest):
+class CommonUserViewTest(BaseViewTest, TestCase):
     bot = False
 
     def test_user_must_be_authenticated(self):
@@ -32,7 +32,7 @@ class CommonUserViewTest(BaseViewTest):
             self.assertEqual(401, response.status_code)
 
 
-class BotVewTest(BaseViewTest):
+class BotVewTest(BaseViewTest, TestCase):
     bot = True
 
     def test_only_bot_can_see_bots_urls(self):

@@ -1,12 +1,12 @@
 import json
 from typing import Optional, Dict
-from django.test import TestCase, Client
+from django.test import Client
 from rest_framework.authtoken.models import Token
 from users.models import CustomUser
 from purchase.models import Purchase, PurchasesList
 
 
-class BaseViewTest(TestCase):
+class BaseViewTest:
     """
     Класс, от которого наследуются классы проверки вьюсетов.
     В зависимости от типа пользователя формирует разные ссылки и предоставляет
