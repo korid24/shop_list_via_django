@@ -1,8 +1,5 @@
-# import json
 from django.test import TestCase
-# from rest_framework.authtoken.models import Token
 from users.models import CustomUser
-# from purchase.models import Purchase, PurchasesList
 from api.utils.mixins import BaseViewTest
 
 

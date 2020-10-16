@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import sys
 import os
-# try:
-#     from .secret import SECRET_KEY, DEBUG
-# except ImportError:
-#     print('Cant import secrets')
 import environ
 
 env = environ.Env()

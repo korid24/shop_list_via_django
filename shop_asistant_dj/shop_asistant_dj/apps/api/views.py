@@ -1,12 +1,7 @@
-# from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-# from rest_framework.exceptions import ValidationError
-# from rest_framework.views import APIView
-# from rest_framework.permissions import IsAuthenticated
-# from purchase.models import Purchase, PurchasesList
 from users.models import CustomUser
 from .utils.mixins import CustomViewSetMixin
 from .utils.permissions import BotPermission
@@ -101,40 +96,3 @@ class BotUserViewSet(viewsets.ModelViewSet):
         current_user.set_password(serializer.validated_data['password'])
         current_user.save()
         return Response(status=204)
-
-
-# class BotPurchaseListViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
-#     serializer_class = PurchasesListSerializer
-#     permission_classes = (BotPermission, )
-#
-#     def get_user(self):
-#         user_telegram_id = self.kwargs.get('user_telegram_id_pk')
-#         return get_object_or_404(
-#             CustomUser.objects.all(), telegram_id=user_telegram_id)
-#
-#     def get_queryset(self):
-#         return self.get_user().items.all()
-#
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.get_user())
-#
-#
-# class BotPurchaseViewSet(CustomViewSetMixin, viewsets.ModelViewSet):
-#     serializer_class = PurchaseSerializer
-#     permission_classes = (BotPermission, )
-#
-#     def get_user(self):
-#         user_telegram_id = self.kwargs.get('user_telegram_id_pk')
-#         return get_object_or_404(
-#             CustomUser.objects.all(), telegram_id=user_telegram_id)
-#
-#     def get_purchase_list(self):
-#         purchase_list_ind = self.kwargs.get('purchase_list_pk')
-#         return get_object_or_404(
-#             self.get_user().items.all(), ind=purchase_list_ind)
-#
-#     def get_queryset(self):
-#         return self.get_purchase_list().items.all()
-#
-#     def perform_create(self, serializer):
-#         serializer.save(purchase_list=self.get_purchase_list())
